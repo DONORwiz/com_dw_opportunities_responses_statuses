@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<form>
+    <fields name="filter">
+        <field name="search" type="text" hint="COM_DW_OPPORTUNITIES_RESPONSES_STATUSES_SEARCH_FILTER_SUBMIT"
+               label="COM_USERS_FILTER_SEARCH_DESC"
+               class="js-stools-search-string" />
+
+        
+		<field name="status" type="list" onchange="this.form.submit();">
+		<option value="">COM_DW_OPPORTUNITIES_RESPONSES_STATUSES_OPPORTUNITIESRESPONSESSTATUSES_STATUS_FILTER</option>
+		<option value="pending">COM_DW_OPPORTUNITIES_RESPONSES_STATUSES_OPPORTUNITIESRESPONSESSTATUSES_STATUS_OPTION_PENDING</option>
+		<option value="accepted">COM_DW_OPPORTUNITIES_RESPONSES_STATUSES_OPPORTUNITIESRESPONSESSTATUSES_STATUS_OPTION_ACCEPTED</option>
+		<option value="declined">COM_DW_OPPORTUNITIES_RESPONSES_STATUSES_OPPORTUNITIESRESPONSESSTATUSES_STATUS_OPTION_DECLINED</option>
+		</field>
+
+    </fields>
+</form>
