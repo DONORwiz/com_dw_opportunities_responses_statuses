@@ -72,8 +72,6 @@ class Dw_opportunities_responses_statusesControllerDwOpportunityresponsestatusFo
 			jexit();
         }
 		
-		$notify = ( isset ( $data['parameters']['notify'] ) && $data['parameters']['notify']=='1' ) ? true : null ;
-
 		//parameters fields convert into json before save - yesinternet
 		if (isset($data['parameters']) && is_array($data['parameters']))
 		{
@@ -108,42 +106,10 @@ class Dw_opportunities_responses_statusesControllerDwOpportunityresponsestatusFo
             $model->checkin($return);
         }
 
-        // Clear the profile id from the session.
-        $app->setUserState('com_dw_opportunities_responses_statuses.edit.opportunityresponsestatus.id', null);
-
-        // Flush the data from the session.
-        $app->setUserState('com_dw_opportunities_responses_statuses.edit.opportunityresponsestatus.data', null);
-		
-		//Notify opportunity creator via messaging system ---------------------------------------------------------------------
-		
-		
-		if ( $notify )
-		{
-			JModelLegacy::addIncludePath(JPATH_SITE . '/components/com_dw_opportunities_responses/models', 'Dw_opportunities_responsesModel');
-			$responseModel = JModelLegacy::getInstance('DwOpportunityresponse', 'Dw_opportunities_responsesModel', array('ignore_request' => true));	
-			$response = $responseModel -> getData( $data['response_id']);
-			
-			JModelLegacy::addIncludePath(JPATH_SITE . '/components/com_dw_opportunities/models', 'Dw_opportunitiesModel');
-			$opportunityModel = JModelLegacy::getInstance('DwOpportunity', 'Dw_opportunitiesModel', array('ignore_request' => true));	
-			$opportunity = $opportunityModel -> getData( $response -> opportunity_id );		
-			
-			$donorwizMessaging = new DonorwizMessaging();
-			
-			$messageParams = array();
-			$messageParams['actor_id'] = CFactory::getUser() -> id;
-			$messageParams['target'] = $response -> created_by;
-			$messageParams['opportunity_title'] = $opportunity -> title;
-			$messageParams['link'] = JRoute::_('index.php?option=com_donorwiz&view=dashboard&layout=dwopportunity&Itemid=298&id='.$opportunity -> id).'#opportunityresponse'.$data['id'];
-			$messageParams['subject'] = $opportunity->title.': '.JText::_('COM_DW_OPPORTUNITIES_RESPONSES_STATUSES_NEW_RESPONSE_STATUS_NOTIFICATION_SUBJECT');
-			$messageParams['body'] = JText::_('COM_DW_OPPORTUNITIES_RESPONSES_STATUSES_NEW_RESPONSE_STATUS_NOTIFICATION_BODY');
-			
-			$messageParams['response_status'] = JText::_('COM_DW_OPPORTUNITIES_RESPONSES_STATUSES_'.$data ['status']);	
-			
-			$donorwizMessaging -> sendNotification ( $messageParams ) ;
-		}
-		//----------------------------------------------------------------------------------------------------------------------------------
-		
-		
+		//Notify volunteer about the new status  ----------------------------------------------------------------------------------------------------
+		JPluginHelper::importPlugin('donorwiz');
+		$dispatcher	= JEventDispatcher::getInstance();
+		$dispatcher->trigger( 'onOpportunityResponseStatusUpdate' , array( &$data ) );
 		
 		try
 		{
