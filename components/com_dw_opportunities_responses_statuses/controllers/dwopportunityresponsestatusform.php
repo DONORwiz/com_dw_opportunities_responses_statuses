@@ -47,11 +47,47 @@ class Dw_opportunities_responses_statusesControllerDwOpportunityresponsestatusFo
 				$authorised = $user -> id == $itemOwner ; 
 			}
 		
-        } else 
+        } 
+		else 
 		{
             //Check the user can create new item
             $authorised = $user->authorise('core.create', 'com_dw_opportunities_responses_statuses');
+			
+            //Check the user has already created a status for this response_id ( ONLY 1 allowed )
+            if( $authorised )
+            {
+				$response_id = ( !empty( $data['response_id'] ) ) ? $data['response_id'] : 0 ;
+				
+				JModelLegacy::addIncludePath(JPATH_SITE . '/components/com_dw_opportunities_responses_statuses/models', 'Dw_opportunities_responses_statusesModel');
+				$responsesstatusesModel = JModelLegacy::getInstance('DWOpportunitiesresponsesstatuses', 'Dw_opportunities_responses_statusesModel', array('ignore_request' => true));        
+				$responsesstatuses = $responsesstatusesModel -> getItemsByResponse( $response_id );
+
+				if( $responsesstatuses )
+				{
+					$authorised = false ;
+				}
+			
+			}
+			
         }		
+		
+		if( $authorised )
+		{
+			//Check if the response belongs to an opportunity that is created by the user
+			
+			//Get the response object
+			JModelLegacy::addIncludePath(JPATH_SITE . '/components/com_dw_opportunities_responses/models', 'Dw_opportunities_responsesModel');
+			$responseModel = JModelLegacy::getInstance('DwOpportunityresponse', 'Dw_opportunities_responsesModel', array('ignore_request' => true));	
+			$response = $responseModel ->getData ( $data['response_id'] );
+			
+			//Get the opportunity
+			JModelLegacy::addIncludePath(JPATH_SITE . '/components/com_dw_opportunities/models', 'Dw_opportunitiesModel');
+			$opportunityModel = JModelLegacy::getInstance('DwOpportunity', 'Dw_opportunitiesModel', array('ignore_request' => true));	
+			$opportunity = $opportunityModel -> getData ( $response -> opportunity_id );
+			
+			$authorised = $user -> id == $opportunity -> created_by;
+			
+		}
 
 		if (!$authorised)
 		{		

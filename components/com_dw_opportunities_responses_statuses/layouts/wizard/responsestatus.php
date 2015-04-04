@@ -3,8 +3,8 @@
 // no direct access
 defined('_JEXEC') or die;
 
-$response = $displayData['response'];
-$response_id =  ( isset ( $response->id ) ) ? $response->id : 0 ;
+$responseStatus = $displayData['responseStatus'];
+
 
 //Load the Response Status Wizard form
 $form = new JForm( 'com_dw_opportunities_responses_statuses.dwopportunityresponsestatusform' , array( 'control' => 'jform', 'load_data' => true ) );
@@ -12,8 +12,11 @@ $form->loadFile( JPATH_ROOT . '/components/com_dw_opportunities_responses_status
 
 JModelLegacy::addIncludePath(JPATH_SITE . '/components/com_dw_opportunities_responses_statuses/models', 'Dw_opportunities_responses_statusesModel');
 $responsestatusModel = JModelLegacy::getInstance('DwOpportunityresponsestatus', 'Dw_opportunities_responses_statusesModel', array('ignore_request' => true));	
-$responsestatusData = $responsestatusModel->getData( $response ->status_id );	
+$responsestatusData = $responsestatusModel->getData( $responseStatus ->id );	
 $form->bind( $responsestatusData );
+
+if( !$responsestatusData -> state )
+	$responsestatusData -> state = '1';
 
 $script = array();
 
@@ -24,18 +27,17 @@ $script[] = 'var JText_COM_DONORWIZ_MODAL_PLEASE_WAIT = "'.JText::_('COM_DONORWI
 
 JFactory::getDocument()->addScriptDeclaration(implode("\n", $script));
 JHtml::_('jquery.framework');
-JHtml::script(Juri::base() . 'media/com_donorwiz/js/wizard.js');
 
 ?>
 
 <div class="uk-article">
 
-	<form id="form-response" class="uk-form uk-form-horizontal dw-ajax-submit" action="<?php echo JURI::base();?>index.php?option=com_dw_opportunities_responses_statuses&task=dwopportunityresponsestatusform.save" method="post" class="form-validate form-horizontal" enctype="multipart/form-data">
+	<form id="form-response" class="uk-form uk-form-horizontal dw-wizard" action="<?php echo JURI::base();?>index.php?option=com_dw_opportunities_responses_statuses&task=dwopportunityresponsestatusform.save" method="post" class="form-validate form-horizontal" enctype="multipart/form-data">
 		
 		<div class="uk-hidden">
 		
 			<?php echo $form->getInput('id'); ?>
-			<?php echo $form->getInput('state'); ?>
+			<input id="jform_state" type="hidden" name="jform[state]" value="<?php echo $responsestatusData->state; ?>" />	
 			<?php echo $form->getInput('created_by'); ?>
 			
 		</div>
@@ -67,10 +69,8 @@ JHtml::script(Juri::base() . 'media/com_donorwiz/js/wizard.js');
 
 		</div>
 		
-		<input type="hidden" name="jform[response_id]" value="<?php echo $response_id; ?>" />
+		<input type="hidden" name="jform[response_id]" value="<?php echo $responseStatus->response_id; ?>" />
 		
-		<input type="hidden" name="wizardReloadPage" value="current" />
-
 		<?php echo JHtml::_('form.token'); ?>
 
 	</form>
