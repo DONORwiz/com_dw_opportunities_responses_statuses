@@ -28,6 +28,7 @@ $script[] = 'var JText_COM_DONORWIZ_MODAL_PLEASE_WAIT = "'.JText::_('COM_DONORWI
 JFactory::getDocument()->addScriptDeclaration(implode("\n", $script));
 JHtml::_('jquery.framework');
 
+
 ?>
 
 <div class="uk-article">
@@ -40,10 +41,6 @@ JHtml::_('jquery.framework');
 			<input id="jform_state" type="hidden" name="jform[state]" value="<?php echo $responsestatusData->state; ?>" />	
 			<?php echo $form->getInput('created_by'); ?>
 			
-		</div>
-
-		<div class="uk-form-row">
-			<?php echo $form->getInput('message'); ?>
 		</div>
 
 		<div class="uk-form-row">

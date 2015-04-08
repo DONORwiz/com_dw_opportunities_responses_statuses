@@ -232,6 +232,12 @@ class Dw_opportunities_responses_statusesModelDWOpportunitiesresponsesstatuses e
 			$query->where("a.status = '".$db->escape($filter_status)."'");
 		}
 
+		//Filtering status
+		$filter_response_id = $this->state->get("filter.response_id");
+		if ($filter_response_id) {
+			$query->where("a.response_id = '".$db->escape($filter_response_id)."'");
+		}
+		
 		// Add the list ordering clause.
 		$orderCol  = $this->state->get('list.ordering');
 		$orderDirn = $this->state->get('list.direction');
